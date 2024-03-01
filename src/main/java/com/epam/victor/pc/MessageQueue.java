@@ -1,4 +1,4 @@
-package com.epam.victor.task;
+package com.epam.victor.pc;
 
 import java.util.LinkedList;
 import java.util.Queue;

@@ -1,14 +1,14 @@
-package com.epam.victor.task;
+package com.epam.victor.pc;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Random;
 import java.util.UUID;
 
-public class Producer {
+public class Producer extends Thread {
     private MessageQueue queue;
-    private volatile boolean running = true;
 
     private Object lock;
+
+    private boolean running = true;
 
     private Thread thread;
 
@@ -17,27 +17,22 @@ public class Producer {
         this.lock = queue.getLock();
     }
 
-    public void start(){
-        thread = new Thread(() -> {
-            while (running){
-                try {
-                    produce();
-                } catch (InterruptedException e) {
-                    throw new ConsumerInterruptedException(e);
+
+    @Override
+    public void run() {
+        while (running){
+            try {
+                produce();
+                if (Thread.currentThread().isInterrupted()){
+                    running = false;
+                    System.out.println("Thread was interrupted");
                 }
+            } catch (InterruptedException e) {
+               running = false;
+               System.out.println("Thread was interrupted");
             }
-        });
-        thread.start();
-
-    }
-
-
-    public void join(){
-        try {
-            thread.join();
-        } catch (InterruptedException e) {
-            throw new ConsumerInterruptedException(e);
         }
+
     }
 
     private void produce() throws InterruptedException {
@@ -60,11 +55,5 @@ public class Producer {
         return new Message(UUID.randomUUID().toString(), randomTopic);
     }
 
-    public boolean isRunning() {
-        return running;
-    }
 
-    public void stop(){
-        running = false;
-    }
 }
