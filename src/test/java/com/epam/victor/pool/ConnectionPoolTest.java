@@ -22,6 +22,8 @@ public class ConnectionPoolTest {
         ExecutorService executorService = Executors.newFixedThreadPool(5);
         connectionPool.init(10,5);
 
+        System.out.println(connectionPool.getAvailableConnectionsCount());
+
         List<Future<Connection>> futureList = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             Future<Connection> future = executorService.submit(() -> {
@@ -48,8 +50,8 @@ public class ConnectionPoolTest {
 
         executorService.submit(() -> {
             System.out.println("Trying to get");
-            Connection object = connectionPool.getConnection();
-            System.out.println("Got successfully " + object);
+            Connection connection = connectionPool.getConnection();
+            System.out.println("Got successfully " + connection);
         });
 
         executorService.submit(() -> {
@@ -71,5 +73,8 @@ public class ConnectionPoolTest {
         }
 
         connectionPool.destroy();
+
+        System.out.println(connectionPool.getAvailableConnectionsCount());
+
     }
 }

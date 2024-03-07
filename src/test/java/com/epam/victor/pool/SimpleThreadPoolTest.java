@@ -2,7 +2,6 @@ package com.epam.victor.pool;
 
 import com.epam.victor.pool.simple.BlockingObjectPool;
 import com.epam.victor.pool.simple.PoolObject;
-import com.epam.victor.pool.simple.SimplePoolService;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
