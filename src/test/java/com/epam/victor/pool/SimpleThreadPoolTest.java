@@ -40,9 +40,7 @@ public class SimpleThreadPoolTest {
         List<PoolObject> objectList = futureList.stream().map(f -> {
             try {
                 return f.get();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            } catch (ExecutionException e) {
+            } catch (InterruptedException | ExecutionException e) {
                 throw new RuntimeException(e);
             }
         }).collect(Collectors.toList());

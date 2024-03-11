@@ -1,5 +1,6 @@
 package com.epam.victor.pool;
 
+import com.epam.victor.expirement.ExperimentException;
 import com.epam.victor.pool.connection.Connection;
 import com.epam.victor.pool.connection.ConnectionPool;
 import org.junit.jupiter.api.Test;
@@ -39,9 +40,7 @@ public class ConnectionPoolTest {
         List<Connection> connections = futureList.stream().map(f -> {
             try {
                 return f.get();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            } catch (ExecutionException e) {
+            } catch (InterruptedException | ExecutionException e) {
                 throw new RuntimeException(e);
             }
         }).collect(Collectors.toList());

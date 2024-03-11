@@ -15,7 +15,6 @@ public class BlockingObjectPool {
      * @param size of pool
      */
 
-    //private Semaphore semaphore;
     private LinkedBlockingQueue<Object> objects;
 
     private ReentrantLock lock = new ReentrantLock();
@@ -36,7 +35,6 @@ public class BlockingObjectPool {
         }
 
     }
-
 
     /**
      * Gets object from pool or blocks if pool is empty
