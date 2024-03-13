@@ -1,6 +1,7 @@
 package com.epam.victor.expirement;
 
 import java.util.ConcurrentModificationException;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
@@ -10,6 +11,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.IntStream;
 
 
 public class Experiment {
@@ -18,20 +20,25 @@ public class Experiment {
 
     public void doExperiment(Map<Integer, Integer> map, int secondsBeforeCancel){
 
-        ExecutorService executorService = Executors.newFixedThreadPool(2);
+        ExecutorService executorService = Executors.newFixedThreadPool(10);
 
-        Future<?> addTaskFuture = executorService.submit(() -> {
-            boolean running = true;
-            while (running) {
-                try {
-                    RandomMapWriter.addRandomElement(map, indexCounter);
-                    Thread.sleep(10);
-                } catch (InterruptedException e) {
-                    System.out.println(e);
-                    running = false;
-                }
-            }
-        });
+
+        List<? extends Future<?>> futureList = IntStream.range(0, 5)
+                .mapToObj(i -> executorService.submit(() -> {
+                    boolean running = true;
+                    while (running) {
+                        try {
+                            RandomMapWriter.addRandomElement(map, indexCounter);
+                            Thread.sleep(10);
+                        } catch (InterruptedException e) {
+                            System.out.println(e);
+                            running = false;
+                        }
+                    }
+                }))
+                .toList();
+
+//        Future<?> addTaskFuture =
 
         Future<?> sumTaskFuture = executorService.submit(() -> {
             boolean running = true;
@@ -64,7 +71,7 @@ public class Experiment {
         } catch (TimeoutException e) {
             System.out.println("Experiment timeout elapsed. No ConcurrentModificationException was thrown");
         } finally {
-            addTaskFuture.cancel(true);
+           // addTaskFuture.cancel(true);
         }
     }
 

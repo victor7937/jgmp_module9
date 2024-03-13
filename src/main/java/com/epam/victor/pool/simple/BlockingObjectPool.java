@@ -17,10 +17,7 @@ public class BlockingObjectPool {
 
     private LinkedBlockingQueue<Object> objects;
 
-    private ReentrantLock lock = new ReentrantLock();
-
-
-    private int limit;
+    private final int limit;
 
     public BlockingObjectPool(int limit) {
         this.limit = limit;

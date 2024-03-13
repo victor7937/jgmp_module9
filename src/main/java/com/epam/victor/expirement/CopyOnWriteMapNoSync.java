@@ -4,22 +4,25 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 
 
 public class CopyOnWriteMapNoSync<K, V> implements Map<K, V>{
     private volatile Map<K, V> internalMap;
 
+    private final AtomicReference<Map<K, V>> reference;
+
     public CopyOnWriteMapNoSync() {
-        internalMap = new HashMap<K, V>();
+        reference = new AtomicReference<>(new HashMap<K, V>());
     }
 
     public CopyOnWriteMapNoSync(int initialCapacity) {
-        internalMap = new HashMap<K, V>(initialCapacity);
+        reference = new AtomicReference<>(new HashMap<K, V>(initialCapacity));
     }
 
     public CopyOnWriteMapNoSync(Map<K, V> data) {
-        internalMap = new HashMap<K, V>(data);
+        reference = new AtomicReference<>(new HashMap<K, V>(data));
     }
 
     public V put(K key, V value) {
