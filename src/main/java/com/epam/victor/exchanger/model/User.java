@@ -4,17 +4,17 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
-import java.util.Currency;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Account {
+public class User {
 
-    private String iban;
+    private Long id;
 
-    private Currency currency;
+    private String name;
 
-    private BigDecimal amount;
+    private List<Account> accounts;
+
 }

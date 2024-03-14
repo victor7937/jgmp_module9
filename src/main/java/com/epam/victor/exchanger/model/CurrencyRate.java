@@ -5,16 +5,17 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.util.Currency;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-public class Account {
+@NoArgsConstructor
+public class CurrencyRate {
 
-    private String iban;
+    private Long id;
 
-    private Currency currency;
+    private CurrencyPair currencyPair;
 
-    private BigDecimal amount;
+    private BigDecimal buy;
+
+    private BigDecimal sell;
 }

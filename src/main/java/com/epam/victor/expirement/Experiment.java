@@ -4,13 +4,9 @@ import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 
@@ -22,9 +18,8 @@ public class Experiment {
 
         ExecutorService executorService = Executors.newFixedThreadPool(10);
 
-
-        List<? extends Future<?>> futureList = IntStream.range(0, 5)
-                .mapToObj(i -> executorService.submit(() -> {
+        CompletableFuture<?>[] addNumberFutures = IntStream.range(0, 5)
+                .mapToObj(i -> CompletableFuture.runAsync(() -> {
                     boolean running = true;
                     while (running) {
                         try {
@@ -35,8 +30,10 @@ public class Experiment {
                             running = false;
                         }
                     }
-                }))
-                .toList();
+                }, executorService)).toArray(CompletableFuture[]::new);
+
+
+        CompletableFuture<Void> addNumberFuturesCombine = CompletableFuture.allOf(addNumberFutures);
 
 //        Future<?> addTaskFuture =
 
@@ -71,7 +68,7 @@ public class Experiment {
         } catch (TimeoutException e) {
             System.out.println("Experiment timeout elapsed. No ConcurrentModificationException was thrown");
         } finally {
-           // addTaskFuture.cancel(true);
+            addNumberFuturesCombine.cancel(true);
         }
     }
 

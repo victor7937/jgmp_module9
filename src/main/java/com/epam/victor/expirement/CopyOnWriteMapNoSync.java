@@ -9,9 +9,9 @@ import java.util.concurrent.locks.ReentrantLock;
 
 
 public class CopyOnWriteMapNoSync<K, V> implements Map<K, V>{
-    private volatile Map<K, V> internalMap;
+    //private volatile Map<K, V> internalMap;
 
-    private final AtomicReference<Map<K, V>> reference;
+    private AtomicReference<Map<K, V>> reference;
 
     public CopyOnWriteMapNoSync() {
         reference = new AtomicReference<>(new HashMap<K, V>());
@@ -26,74 +26,74 @@ public class CopyOnWriteMapNoSync<K, V> implements Map<K, V>{
     }
 
     public V put(K key, V value) {
-        Map<K, V> copy = new HashMap<K, V>(internalMap);
+        Map<K, V> copy = new HashMap<>(reference.get());
         V val = copy.put(key, value);
-        internalMap = copy;
+        reference = new AtomicReference<>(copy);
         return val;
 
     }
 
     public V remove(Object key) {
-        Map<K, V> copy = new HashMap<K, V>(internalMap);
+        Map<K, V> copy = new HashMap<>(reference.get());
         V val = copy.remove(key);
-        internalMap = copy;
+        reference = new AtomicReference<>(copy);
         return val;
 
     }
 
     public void putAll(Map<? extends K, ? extends V> newData) {
-        Map<K, V> newMap = new HashMap<K, V>(internalMap);
+        Map<K, V> newMap = new HashMap<>(reference.get());
         newMap.putAll(newData);
-        internalMap = newMap;
+        reference = new AtomicReference<>(newMap);
     }
 
 
     public void clear() {
-        internalMap = new HashMap<K, V>();
+        reference = new AtomicReference<>((new HashMap<K, V>()));
     }
 
 
     public int size() {
-        return internalMap.size();
+        return reference.get().size();
     }
 
 
     public boolean isEmpty() {
-        return internalMap.isEmpty();
+        return reference.get().isEmpty();
     }
 
 
     public boolean containsKey(Object key) {
-        return internalMap.containsKey(key);
+        return reference.get().containsKey(key);
     }
 
 
     public boolean containsValue(Object value) {
-        return internalMap.containsValue(value);
+        return reference.get().containsValue(value);
     }
 
 
     public V get(Object key) {
-        return internalMap.get(key);
+        return reference.get().get(key);
     }
 
 
     public Set<K> keySet() {
-        return internalMap.keySet();
+        return reference.get().keySet();
     }
 
 
     public Collection<V> values() {
-        return internalMap.values();
+        return reference.get().values();
     }
 
 
     public Set<Entry<K, V>> entrySet() {
-        return internalMap.entrySet();
+        return reference.get().entrySet();
     }
 
     @Override
     public String toString() {
-        return internalMap.toString();
+        return reference.get().toString();
     }
 }
