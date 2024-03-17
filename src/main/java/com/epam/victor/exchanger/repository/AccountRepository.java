@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public interface AccountRepository {
 
-    Account crete(Account account);
+    void save(Account account);
 
     Optional<Account> findByIban(String iban);
 
