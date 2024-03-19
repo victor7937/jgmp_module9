@@ -15,7 +15,7 @@ public class ExchangeAccountRepository implements AccountRepository {
 
     private ObjectMapper objectMapper;
 
-    private final static String ACCOUNT_PATH = "/home/victor/Documents/EPAM/Mentoring/9/exchange_app_data/Account/";
+    private final static String ACCOUNT_PATH = "C:\\Users\\Victor_Vyrostak\\Documents\\Mentoring\\Module9_Multithreading\\exchange_app_data\\Account\\";
 
     public ExchangeAccountRepository() {
         this.objectMapper = ObjectMapperConfigurer.configure(new ObjectMapper());

@@ -15,7 +15,7 @@ public class ExchangeCurrencyRateRepository implements CurrencyRateRepository {
 
     private ObjectMapper objectMapper;
 
-    private final static String CURRENCY_RATE_PATH = "/home/victor/Documents/EPAM/Mentoring/9/exchange_app_data/CurrencyRate/";
+    private final static String CURRENCY_RATE_PATH = "C:\\Users\\Victor_Vyrostak\\Documents\\Mentoring\\Module9_Multithreading\\exchange_app_data\\CurrencyRate\\";
 
     public ExchangeCurrencyRateRepository() {
         this.objectMapper = ObjectMapperConfigurer.configure(new ObjectMapper());

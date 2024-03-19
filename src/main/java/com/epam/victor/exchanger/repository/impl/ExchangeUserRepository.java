@@ -15,7 +15,7 @@ public class ExchangeUserRepository implements UserRepository {
 
     private ObjectMapper objectMapper;
 
-    private final static String USER_PATH = "/home/victor/Documents/EPAM/Mentoring/9/exchange_app_data/User/";
+    private final static String USER_PATH = "C:\\Users\\Victor_Vyrostak\\Documents\\Mentoring\\Module9_Multithreading\\exchange_app_data\\User\\";
 
     public ExchangeUserRepository() {
         objectMapper = ObjectMapperConfigurer.configure(new ObjectMapper());

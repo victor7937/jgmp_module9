@@ -12,7 +12,7 @@ public class ExchangeServiceTest {
     @Test
     void currencyShouldBeExchangedBetweenAccounts(){
         ExchangeService service = CurrencyExchangeServiceProvider.getExchangeServiceInstance();
-        service.exchange(
+        service.exchangeBetweenAccounts(
                 "GE29NB0000000101904912",
                 "GE29NB0000000101904914",
                 CurrencyPair.of("USD/GEL"),
