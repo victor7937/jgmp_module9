@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -21,6 +22,9 @@ public class User {
 
     @JsonSerialize(using = AccountListSerializer.class)
     @JsonDeserialize(using = AccountListDeserializer.class)
-    private List<Account> accounts;
+    private List<Account> accounts = new ArrayList<>();
 
+    public User(String name) {
+        this.name = name;
+    }
 }

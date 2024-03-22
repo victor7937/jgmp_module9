@@ -59,4 +59,16 @@ public class JsonFileUtil {
         }
         return Optional.ofNullable(object);
     }
+
+    public static boolean isPathExist(String path){
+        return Files.exists(Paths.get(path));
+    }
+
+    public static void removeFile(String path){
+        try {
+            Files.delete(Paths.get(path));
+        } catch (IOException e) {
+            throw new JsonFileReadException("Unable to delete file " + path, e);
+        }
+    }
 }

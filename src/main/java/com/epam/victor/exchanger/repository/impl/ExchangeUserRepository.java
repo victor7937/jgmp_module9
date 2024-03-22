@@ -30,13 +30,6 @@ public class ExchangeUserRepository implements UserRepository {
                 new TypeReference<>() {});
     }
 
-//    @Override
-//    public List<User> findByName(String name) {
-//        return findAll().stream()
-//                .filter(u -> u.getName().equals(name))
-//                .collect(Collectors.toList());
-//    }
-
     @Override
     public Optional<User> findById(String id) {
         return JsonFileUtil.fileByPathToObject(USER_PATH + id + ".json", objectMapper, new TypeReference<>() {});
@@ -45,5 +38,10 @@ public class ExchangeUserRepository implements UserRepository {
     @Override
     public List<User> findAll() {
         return JsonFileUtil.findAllFromFolder(USER_PATH, objectMapper, new TypeReference<>() {});
+    }
+
+    @Override
+    public void removeUser(String id) {
+        JsonFileUtil.removeFile(USER_PATH + id + ".json");
     }
 }

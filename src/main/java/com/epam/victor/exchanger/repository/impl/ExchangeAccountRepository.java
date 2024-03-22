@@ -40,4 +40,14 @@ public class ExchangeAccountRepository implements AccountRepository {
     public List<Account> findAll() {
         return JsonFileUtil.findAllFromFolder(ACCOUNT_PATH, objectMapper, new TypeReference<>() {});
     }
+
+    @Override
+    public boolean isAccountExist(String iban) {
+        return JsonFileUtil.isPathExist(ACCOUNT_PATH + iban + ".json");
+    }
+
+    @Override
+    public void removeAccount(String iban) {
+        JsonFileUtil.removeFile(ACCOUNT_PATH + iban + ".json");
+    }
 }

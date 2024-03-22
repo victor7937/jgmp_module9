@@ -12,4 +12,8 @@ public interface AccountRepository {
     Optional<Account> findByIban(String iban);
 
     List<Account> findAll();
+
+    boolean isAccountExist(String iban);
+
+    void removeAccount(String iban);
 }

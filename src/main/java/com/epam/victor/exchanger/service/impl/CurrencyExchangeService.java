@@ -8,13 +8,17 @@ import com.epam.victor.exchanger.repository.AccountRepository;
 import com.epam.victor.exchanger.repository.CurrencyRateRepository;
 import com.epam.victor.exchanger.repository.UserRepository;
 import com.epam.victor.exchanger.service.ExchangeService;
+import com.epam.victor.exchanger.service.exception.AccountAlreadyExistException;
 import com.epam.victor.exchanger.service.exception.AccountNotFoundException;
 import com.epam.victor.exchanger.service.exception.InsufficientFundsException;
+import org.apache.commons.validator.routines.checkdigit.IBANCheckDigit;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Currency;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class CurrencyExchangeService implements ExchangeService {
@@ -39,6 +43,10 @@ public class CurrencyExchangeService implements ExchangeService {
             lock.lock();
             Account accountFrom = findAccountByIban(ibanFrom);
             Account accountTo = findAccountByIban(ibanTo);
+            if (accountFrom.getAmount().compareTo(amount) < 0) {
+                throw new InsufficientFundsException(String.format(
+                        "Not able to withdraw %s for account %s Reason: insufficient funds", amount, ibanFrom));
+            }
             exchangeBetweenAccounts(accountFrom, accountTo, pair, amount);
         } finally {
             lock.unlock();
@@ -118,6 +126,56 @@ public class CurrencyExchangeService implements ExchangeService {
                 .stream()
                 .filter(a -> a.getIban().equals(iban))
                 .findAny();
+    }
+
+    @Override
+    public Account saveAccount(Account account) {
+        String iban = account.getIban();
+        //if(iban == null || !IBANCheckDigit.IBAN_CHECK_DIGIT.isValid(iban)){
+        if(iban == null || iban.isEmpty()){
+            throw new IllegalArgumentException("Iban is not valid");
+        }
+        accountRepository.save(account);
+        return findAccountByIban(iban);
+    }
+
+    @Override
+    public User saveUser(User user) {
+        String uuid = UUID.randomUUID().toString();
+        if (user.getId() == null || user.getId().isEmpty()){
+            user.setId(uuid);
+        } else {
+            uuid = user.getId();
+        }
+        if (user.getAccounts() == null){
+            user.setAccounts(new ArrayList<>());
+        }
+        user.getAccounts().forEach(a -> {
+            if(accountRepository.isAccountExist(a.getIban())){
+                throw new AccountAlreadyExistException(
+                        String.format("Account %s is already created",  a.getIban()));
+            }
+        });
+        user.getAccounts().forEach(accountRepository::save);
+        userRepository.save(user);
+        return findUserById(uuid);
+    }
+
+    @Override
+    public void saveCurrencyRate(CurrencyRate currencyRate) {
+        currencyRateRepository.save(currencyRate);
+    }
+
+    @Override
+    public void removeAccount(String iban) {
+        accountRepository.removeAccount(iban);
+    }
+
+    @Override
+    public void removeUser(String id) {
+        User user = findUserById(id);
+        user.getAccounts().forEach(a -> accountRepository.removeAccount(a.getIban()));
+        userRepository.removeUser(id);
     }
 
 

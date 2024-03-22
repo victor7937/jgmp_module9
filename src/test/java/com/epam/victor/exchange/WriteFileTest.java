@@ -10,6 +10,7 @@ import com.epam.victor.exchanger.repository.UserRepository;
 import com.epam.victor.exchanger.repository.impl.ExchangeAccountRepository;
 import com.epam.victor.exchanger.repository.impl.ExchangeCurrencyRateRepository;
 import com.epam.victor.exchanger.repository.impl.ExchangeUserRepository;
+import com.epam.victor.exchanger.service.ExchangeService;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -26,8 +27,9 @@ public class WriteFileTest {
                 "GE29NB0000000101904914",
                 Currency.getInstance("GEL"),
                 BigDecimal.valueOf(150)));
-
     }
+
+
 
     @Test
     void userShouldBeWritten(){

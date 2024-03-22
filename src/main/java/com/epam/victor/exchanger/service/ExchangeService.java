@@ -26,4 +26,14 @@ public interface ExchangeService {
 
     Optional<Account> findAccountOfUser(String iban, String userId);
 
+    Account saveAccount(Account account);
+
+    User saveUser(User user);
+
+    void saveCurrencyRate(CurrencyRate currencyRate);
+
+    void removeAccount(String iban);
+
+    void removeUser(String id);
+
 }

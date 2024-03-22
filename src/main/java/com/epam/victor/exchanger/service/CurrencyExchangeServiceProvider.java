@@ -6,15 +6,13 @@ import com.epam.victor.exchanger.repository.impl.ExchangeUserRepository;
 import com.epam.victor.exchanger.service.impl.CurrencyExchangeService;
 
 public class CurrencyExchangeServiceProvider {
-    public static ExchangeService currencyExchangeService;
+    private static final ExchangeService currencyExchangeService = new CurrencyExchangeService(
+            new ExchangeAccountRepository(),
+            new ExchangeCurrencyRateRepository(),
+            new ExchangeUserRepository()
+    );
 
-    static {
-        currencyExchangeService = new CurrencyExchangeService(
-                new ExchangeAccountRepository(),
-                new ExchangeCurrencyRateRepository(),
-                new ExchangeUserRepository()
-        );
-    }
+
 
     public static ExchangeService getExchangeServiceInstance(){
         return currencyExchangeService;
