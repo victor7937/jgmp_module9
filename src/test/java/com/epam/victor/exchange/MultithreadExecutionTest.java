@@ -74,6 +74,7 @@ public class MultithreadExecutionTest {
 
         BigDecimal expectedAmountUsd = initialAmountUsd.subtract(valeToExchange.multiply(BigDecimal.valueOf(transferCount)));
         System.out.println(expectedAmountUsd);
+
         Assertions.assertEquals(0, actualAmountGel.compareTo(expectedAmountGel));
         Assertions.assertEquals(0, actualAmountUSD.compareTo(expectedAmountUsd));
 
@@ -158,6 +159,7 @@ public class MultithreadExecutionTest {
 
         BigDecimal expectedAmountUsd = initialAmountUsd.subtract(valeToExchange.multiply(BigDecimal.valueOf(transferCount)));
         System.out.println(expectedAmountUsd);
+
         Assertions.assertEquals(0, actualAmountGel.compareTo(expectedAmountGel));
         Assertions.assertEquals(0, actualAmountUSD.compareTo(expectedAmountUsd));
 

@@ -8,10 +8,10 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 
 
-public class CopyOnWriteMapNoSync<K, V> implements Map<K, V>{
+public class CopyOnWriteMapNoSync<K, V> implements Map<K, V> {
     //private volatile Map<K, V> internalMap;
 
-    private AtomicReference<Map<K, V>> reference;
+    private final AtomicReference<Map<K, V>> reference;
 
     public CopyOnWriteMapNoSync() {
         reference = new AtomicReference<>(new HashMap<K, V>());
@@ -26,30 +26,40 @@ public class CopyOnWriteMapNoSync<K, V> implements Map<K, V>{
     }
 
     public V put(K key, V value) {
-        Map<K, V> copy = new HashMap<>(reference.get());
-        V val = copy.put(key, value);
-        reference = new AtomicReference<>(copy);
-        return val;
+        Object[] result = new Object[1];
+        reference.updateAndGet(current -> {
+            Map<K, V> copy = new HashMap<>(current);
+            V val = copy.put(key, value);
+            result[0] = val;
+            return copy;
+        });
+        return (V) result[0];
 
     }
 
     public V remove(Object key) {
-        Map<K, V> copy = new HashMap<>(reference.get());
-        V val = copy.remove(key);
-        reference = new AtomicReference<>(copy);
-        return val;
+        Object[] result = new Object[1];
+        reference.updateAndGet(current -> {
+            Map<K, V> copy = new HashMap<>(current);
+            V val = copy.remove(key);
+            result[0] = val;
+            return copy;
+        });
+        return (V) result[0];
 
     }
 
     public void putAll(Map<? extends K, ? extends V> newData) {
-        Map<K, V> newMap = new HashMap<>(reference.get());
-        newMap.putAll(newData);
-        reference = new AtomicReference<>(newMap);
+        reference.updateAndGet(current -> {
+            Map<K, V> newMap = new HashMap<>(current);
+            newMap.putAll(newData);
+            return newMap;
+        });
     }
 
 
     public void clear() {
-        reference = new AtomicReference<>((new HashMap<K, V>()));
+        reference.updateAndGet(current -> new HashMap<K, V>());
     }
 
 

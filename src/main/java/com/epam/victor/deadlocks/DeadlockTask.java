@@ -28,9 +28,9 @@ public class DeadlockTask {
             while (running){
                 synchronized (SUM_LOCK){
                     synchronized (NORM_LOCK) {
-                        synchronized (WRITE_LOCK){
+                        //synchronized (WRITE_LOCK){
                             RandomNumberWriter.writeNumber(list);
-                        }
+                        //}
                     }
                 }
                 try {
