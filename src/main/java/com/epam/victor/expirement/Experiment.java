@@ -19,18 +19,18 @@ public class Experiment {
         ExecutorService executorService = Executors.newFixedThreadPool(10);
 
         CompletableFuture<?>[] addNumberFutures = IntStream.range(0, 5)
-                .mapToObj(i -> CompletableFuture.runAsync(() -> {
-                    boolean running = true;
-                    while (running) {
-                        try {
-                            RandomMapWriter.addRandomElement(map, indexCounter);
-                            Thread.sleep(10);
-                        } catch (InterruptedException e) {
-                            System.out.println(e);
-                            running = false;
-                        }
+            .mapToObj(i -> CompletableFuture.runAsync(() -> {
+                boolean running = true;
+                while (running) {
+                    try {
+                        RandomMapWriter.addRandomElement(map, indexCounter);
+                        Thread.sleep(10);
+                    } catch (InterruptedException e) {
+                        System.out.println(e);
+                        running = false;
                     }
-                }, executorService)).toArray(CompletableFuture[]::new);
+                }
+            }, executorService)).toArray(CompletableFuture[]::new);
 
 
         CompletableFuture<Void> addNumberFuturesCombine = CompletableFuture.allOf(addNumberFutures);

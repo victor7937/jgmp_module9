@@ -11,7 +11,8 @@ import com.epam.victor.exchanger.service.ExchangeService;
 import com.epam.victor.exchanger.service.exception.AccountAlreadyExistException;
 import com.epam.victor.exchanger.service.exception.AccountNotFoundException;
 import com.epam.victor.exchanger.service.exception.InsufficientFundsException;
-import org.apache.commons.validator.routines.checkdigit.IBANCheckDigit;
+import com.epam.victor.exchanger.service.util.LockManager;
+import com.epam.victor.exchanger.service.util.LockPair;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -29,65 +30,81 @@ public class CurrencyExchangeService implements ExchangeService {
 
     private final UserRepository userRepository;
 
-    private final ReentrantLock lock = new ReentrantLock();
+    private final LockManager lockManager;
 
-    public CurrencyExchangeService(AccountRepository accountRepository, CurrencyRateRepository currencyRateRepository, UserRepository userRepository) {
+    public CurrencyExchangeService(AccountRepository accountRepository,
+                                   CurrencyRateRepository currencyRateRepository,
+                                   UserRepository userRepository,
+                                   LockManager lockManager) {
         this.accountRepository = accountRepository;
         this.currencyRateRepository = currencyRateRepository;
         this.userRepository = userRepository;
+        this.lockManager = lockManager;
     }
 
     @Override
     public void exchangeBetweenAccounts(String ibanFrom, String ibanTo, CurrencyPair pair, BigDecimal amount) {
+        LockPair lockPair = lockManager.getPair(ibanFrom, ibanTo);
+        lockManager.lockFirst(lockPair);
         try {
-            lock.lock();
-            Account accountFrom = findAccountByIban(ibanFrom);
-            Account accountTo = findAccountByIban(ibanTo);
-            if (accountFrom.getAmount().compareTo(amount) < 0) {
-                throw new InsufficientFundsException(String.format(
-                        "Not able to withdraw %s for account %s Reason: insufficient funds", amount, ibanFrom));
+            lockManager.lockSecond(lockPair);
+            try {
+                Account accountFrom = findAccountByIban(ibanFrom);
+                Account accountTo = findAccountByIban(ibanTo);
+                if (accountFrom.getAmount().compareTo(amount) < 0) {
+                    throw new InsufficientFundsException(String.format(
+                            "Not able to withdraw %s for account %s Reason: insufficient funds", amount, ibanFrom));
+                }
+                exchangeBetweenAccounts(accountFrom, accountTo, pair, amount);
+            } finally {
+               lockManager.unlockAndReleaseSecond(lockPair);
             }
-            exchangeBetweenAccounts(accountFrom, accountTo, pair, amount);
+
         } finally {
-            lock.unlock();
+           lockManager.unlockAndReleaseFirst(lockPair);
         }
     }
 
     @Override
     public void exchangeBetweenUsers(String idFrom, String idTo, CurrencyPair pair, BigDecimal amount) {
+        LockPair lockPair = lockManager.getPair(idFrom, idTo);
+        lockManager.lockFirst(lockPair);
         try {
-            lock.lock();
+             lockManager.lockSecond(lockPair);
+             try {
+                 List<Account> accountsOfUserFrom = findAccountsOfUser(pair.getBase(), idFrom);
+                 List<Account> accountsOfUserTo = findAccountsOfUser(pair.getQuote(), idTo);
 
-            List<Account> accountsOfUserFrom = findAccountsOfUser(pair.getBase(), idFrom);
-            List<Account> accountsOfUserTo = findAccountsOfUser(pair.getQuote(), idTo);
+                 if (accountsOfUserFrom.isEmpty()) {
+                     throw new AccountNotFoundException(String.format(
+                             "No accounts for of %s currency for user %s",
+                             pair.getBase(),
+                             idFrom));
+                 }
 
-            if (accountsOfUserFrom.isEmpty()) {
-                throw new AccountNotFoundException(String.format(
-                        "No accounts for of %s currency for user %s",
-                        pair.getBase(),
-                        idFrom));
-            }
+                 if (accountsOfUserTo.isEmpty()) {
+                     throw new AccountNotFoundException(String.format(
+                             "No accounts for of %s currency for user %s",
+                             pair.getQuote(),
+                             idTo));
+                 }
 
-            if (accountsOfUserTo.isEmpty()) {
-                throw new AccountNotFoundException(String.format(
-                        "No accounts for of %s currency for user %s",
-                        pair.getQuote(),
-                        idTo));
-            }
+                 Account accountFrom = accountsOfUserFrom.stream()
+                         .filter(a -> a.getAmount().compareTo(amount) >= 0)
+                         .findAny()
+                         .orElseThrow(() -> new InsufficientFundsException(String.format(
+                                 "Not able to withdraw %s for user %s Reason: insufficient funds",
+                                 amount,
+                                 idFrom)));
 
-            Account accountFrom = accountsOfUserFrom.stream()
-                    .filter(a -> a.getAmount().compareTo(amount) >= 0)
-                    .findAny()
-                    .orElseThrow(() -> new InsufficientFundsException(String.format(
-                            "Not able to withdraw %s for user %s Reason: insufficient funds",
-                            amount,
-                            idFrom)));
+                 Account accountTo = accountsOfUserTo.get(0);
 
-            Account accountTo = accountsOfUserTo.get(0);
-
-            exchangeBetweenAccounts(accountFrom, accountTo, pair, amount);
+                 exchangeBetweenAccounts(accountFrom, accountTo, pair, amount);
+             } finally {
+                 lockManager.unlockAndReleaseSecond(lockPair);
+             }
         } finally {
-            lock.unlock();
+            lockManager.unlockAndReleaseFirst(lockPair);
         }
     }
 
